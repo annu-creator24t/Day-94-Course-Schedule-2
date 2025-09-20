@@ -1,0 +1,50 @@
+class Solution {
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        // adjacency list for graph
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < numCourses; i++) {
+            graph.add(new ArrayList<>());
+        }
+        
+        // indegree array
+        int[] indegree = new int[numCourses];
+        
+        // build graph
+        for (int[] pre : prerequisites) {
+            int course = pre[0];
+            int prereq = pre[1];
+            graph.get(prereq).add(course);
+            indegree[course]++;
+        }
+        
+        // queue for courses with no prerequisites
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (indegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
+        
+        int[] order = new int[numCourses];
+        int index = 0;
+        
+        while (!queue.isEmpty()) {
+            int curr = queue.poll();
+            order[index++] = curr;
+            
+            for (int neighbor : graph.get(curr)) {
+                indegree[neighbor]--;
+                if (indegree[neighbor] == 0) {
+                    queue.offer(neighbor);
+                }
+            }
+        }
+        
+        // if we couldn't take all courses, return empty array
+        if (index != numCourses) {
+            return new int[0];
+        }
+        
+        return order;
+    }
+}
