@@ -1,23 +1,20 @@
 class Solution {
     public int[] findOrder(int numCourses, int[][] prerequisites) {
-        // adjacency list for graph
         List<List<Integer>> graph = new ArrayList<>();
         for (int i = 0; i < numCourses; i++) {
             graph.add(new ArrayList<>());
         }
         
-        // indegree array
         int[] indegree = new int[numCourses];
         
-        // build graph
+        // switched edge: course -> prereq
         for (int[] pre : prerequisites) {
             int course = pre[0];
             int prereq = pre[1];
-            graph.get(prereq).add(course);
-            indegree[course]++;
+            graph.get(course).add(prereq);
+            indegree[prereq]++;
         }
         
-        // queue for courses with no prerequisites
         Queue<Integer> queue = new LinkedList<>();
         for (int i = 0; i < numCourses; i++) {
             if (indegree[i] == 0) {
@@ -25,25 +22,23 @@ class Solution {
             }
         }
         
-        int[] order = new int[numCourses];
-        int index = 0;
-        
+        List<Integer> orderList = new ArrayList<>();
         while (!queue.isEmpty()) {
             int curr = queue.poll();
-            order[index++] = curr;
+            orderList.add(curr);
             
             for (int neighbor : graph.get(curr)) {
                 indegree[neighbor]--;
-                if (indegree[neighbor] == 0) {
-                    queue.offer(neighbor);
-                }
+                if (indegree[neighbor] == 0) queue.offer(neighbor);
             }
         }
         
-        // if we couldn't take all courses, return empty array
-        if (index != numCourses) {
-            return new int[0];
-        }
+        if (orderList.size() != numCourses) return new int[0];
+        
+        // reverse to get correct course order
+        int[] order = new int[numCourses];
+        for (int i = 0; i < numCourses; i++)
+            order[i] = orderList.get(numCourses - 1 - i);
         
         return order;
     }
